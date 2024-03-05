@@ -15,6 +15,7 @@ import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -310,11 +311,21 @@ public class XMLMain {
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transformer = null;
         transformer = transformerFactory.newTransformer();
+        // Définir la propriété "indent-number"
+        transformer.setOutputProperty("{http://xml.apache.org/xalan}indent-number", "4");
+
+        // Définir la propriété "indent-amount"
+        transformer.setOutputProperty("{http://xml.apache.org/xalan}indent-amount", "2");
+
+
         DOMSource source = new DOMSource(coberturaRoot);
         StreamResult result;
         File dest = new File(destination);
         if (destination.endsWith(".xml") || destination.endsWith(".XML")) {
-            Files.createDirectories(dest.toPath().getParent());
+            Path targetDir = dest.toPath().getParent();
+            if (targetDir != null) {
+                Files.createDirectories(targetDir);
+            }
             result = new StreamResult(new File(destination));
             transformer.transform(source, result);
             System.out.println("Successfully Generated xml file in :- " + destination);
@@ -322,8 +333,7 @@ public class XMLMain {
             Files.createDirectories(dest.toPath());
             result = new StreamResult(new File(destination + "/coverage.xml"));
             transformer.transform(source, result);
-            System.out.println(
-                    "Successfully Generated xml file in :- " + destination + "coverage.xml");
+            System.out.println("Successfully Generated xml file in :- " + destination + "coverage.xml");
         }
     }
 }
