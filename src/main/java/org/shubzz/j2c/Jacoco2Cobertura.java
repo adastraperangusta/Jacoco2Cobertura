@@ -1,6 +1,7 @@
 package org.shubzz.j2c;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import org.shubzz.j2c.core.XMLMain;
@@ -16,7 +17,7 @@ import picocli.CommandLine.Option;
         version = "Jacoco2Cobertura 1.0.0",
         description = "Convert Jacoco xml file to Cobertura xml.")
 public class Jacoco2Cobertura implements Runnable {
-
+    public static final Logger LOGGER = Logger.getLogger(Jacoco2Cobertura.class.getName());
 
     @Option(
             required = true,
@@ -38,9 +39,10 @@ public class Jacoco2Cobertura implements Runnable {
                     "Path to java source root. If program have more than one src directory pass all with comma seperated",
             arity = "1..*",
             split = ",")
-    private String[] source_roots;
+    private String[] sourceroots;
 
     public Jacoco2Cobertura() {
+        // empty
     }
 
     public static void main(String[] args) {
@@ -50,15 +52,13 @@ public class Jacoco2Cobertura implements Runnable {
     @Override
     public void run() {
         if (Validator.validateJacocoFilePath(jacocoFile)) {
-            System.out.println("XML file Validated");
-            XMLMain xmlMain = new XMLMain(jacocoFile, destination, source_roots);
+            LOGGER.info("XML file Validated");
+            XMLMain xmlMain = new XMLMain(jacocoFile, destination, sourceroots);
             try {
                 xmlMain.init();
                 xmlMain.createCoberturaCoverageRootTag();
-            } catch (TransformerException | ParserConfigurationException | IOException |
-                     SAXException e) {
-                System.out.println(
-                        "Some Error Occurred. Please try again if problem persist please raise an issue in Github");
+            } catch (TransformerException | ParserConfigurationException | IOException | SAXException e) {
+                LOGGER.severe("Some Error Occurred. Please try again if problem persist please raise an issue in Github");
                 throw new RuntimeException(e);
             }
         }
